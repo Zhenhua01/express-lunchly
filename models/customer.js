@@ -18,16 +18,34 @@ class Customer {
 
   /** find all customers. */
 
-  static async all() {
-    const results = await db.query(
-      `SELECT id,
-                  first_name AS "firstName",
-                  last_name  AS "lastName",
-                  phone,
-                  notes
-           FROM customers
-           ORDER BY last_name, first_name`,
-    );
+  static async all(searchTerm) {
+    let results;
+
+    if (searchTerm) {
+      results = await db.query(
+        `SELECT id,
+                first_name AS "firstName",
+                last_name  AS "lastName",
+                phone,
+                notes
+               FROM customers
+               WHERE CONCAT(first_name, ' ', last_name) ILIKE $1
+               ORDER BY last_name, first_name`,
+        [`%${searchTerm}%`],
+      );
+
+    } else {
+      results = await db.query(
+        `SELECT id,
+                    first_name AS "firstName",
+                    last_name  AS "lastName",
+                    phone,
+                    notes
+             FROM customers
+             ORDER BY last_name, first_name`,
+      );
+    }
+
     return results.rows.map(c => new Customer(c));
   }
 
@@ -56,23 +74,23 @@ class Customer {
     return new Customer(customer);
   }
 
-  /** get all customers by matching search term. */
-  static async search(name) {
-    let searchName = name.split(" ");
-    const results = await db.query(
-      `SELECT id,
-              first_name AS "firstName",
-              last_name  AS "lastName",
-              phone,
-              notes
-             FROM customers
-             WHERE first_name = $1 OR last_name = $2
-                  OR first_name = $2 OR last_name = $1
-             ORDER BY last_name, first_name`,
-      [searchName[0], searchName[1]],
-    );
-    return results.rows.map(c => new Customer(c));
-  }
+  // /** get all customers by matching search term. */
+  // static async search(name) {
+  //   let searchName = name.split(" ");
+  //   const results = await db.query(
+  //     `SELECT id,
+  //             first_name AS "firstName",
+  //             last_name  AS "lastName",
+  //             phone,
+  //             notes
+  //            FROM customers
+  //            WHERE first_name = $1 OR last_name = $2
+  //            ORDER BY last_name, first_name`,
+  //     [searchName[0], searchName[1]],
+  //   );
+  //   // concat function in SQL to search full name
+  //   return results.rows.map(c => new Customer(c));
+  // }
 
   /** get the top ten customers in order of reservation count. */
   static async getTopTen() {
@@ -86,7 +104,7 @@ class Customer {
             JOIN reservations AS r
             ON c.id = r.customer_id
             GROUP BY c.id
-            ORDER BY count(*) DESC
+            ORDER BY COUNT(*) DESC
             LIMIT 10`,
     );
     return results.rows.map(c => new Customer(c));
