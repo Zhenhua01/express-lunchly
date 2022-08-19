@@ -36,10 +36,10 @@ class Customer {
   static async get(id) {
     const results = await db.query(
       `SELECT id,
-                  first_name AS "firstName",
-                  last_name  AS "lastName",
-                  phone,
-                  notes
+              first_name AS "firstName",
+              last_name  AS "lastName",
+              phone,
+              notes
            FROM customers
            WHERE id = $1`,
       [id],
@@ -61,10 +61,10 @@ class Customer {
     let searchName = name.split(" ");
     const results = await db.query(
       `SELECT id,
-                first_name AS "firstName",
-                last_name  AS "lastName",
-                phone,
-                notes
+              first_name AS "firstName",
+              last_name  AS "lastName",
+              phone,
+              notes
              FROM customers
              WHERE first_name = $1 OR last_name = $2
                   OR first_name = $2 OR last_name = $1
@@ -74,6 +74,23 @@ class Customer {
     return results.rows.map(c => new Customer(c));
   }
 
+  /** get the top ten customers in order of reservation count. */
+  static async getTopTen() {
+    const results = await db.query(
+      `SELECT c.id,
+              c.first_name AS "firstName",
+              c.last_name  AS "lastName",
+              c.phone,
+              c.notes
+            FROM customers AS c
+            JOIN reservations AS r
+            ON c.id = r.customer_id
+            GROUP BY c.id
+            ORDER BY count(*) DESC
+            LIMIT 10`,
+    );
+    return results.rows.map(c => new Customer(c));
+  }
 
   /** get all reservations for this customer. */
 

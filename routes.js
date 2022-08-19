@@ -13,13 +13,13 @@ const router = new express.Router();
 
 router.get("/", async function (req, res, next) {
   let customers;
-  debugger
+
   if (req.query.search) {
-  debugger
     customers = await Customer.search(req.query.search);
   } else {
     customers = await Customer.all();
   }
+
   return res.render("customer_list.html", { customers });
 });
 
@@ -38,6 +38,15 @@ router.post("/add/", async function (req, res, next) {
 
   return res.redirect(`/${customer.id}/`);
 });
+
+/** Handle showing top ten customers. */
+
+router.get("/top-ten/", async function (req, res, next) {
+  const customers = await Customer.getTopTen();
+
+  return res.render("customer_top_ten.html", { customers });
+});
+
 
 /** Show a customer, given their ID. */
 
