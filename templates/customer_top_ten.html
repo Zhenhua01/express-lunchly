@@ -2,13 +2,15 @@
 {% block title %}Top Ten Customers{% endblock %}
 {% block content %}
 
+  <a class="btn btn-primary" style="float: right" href="/add/">Add a Customer</a>
+
   <h1>Top Ten Customers</h1>
 
   <ol style="column-count: 1">
     {% for customer in customers %}
       <li>
-        <a href="/{{ customer.id }}/">
-          {{ customer.fullName() }}
+        <a href="/{{customer.id}}/">
+          {{ customer.fullName }}
         </a>
       </li>
     {% endfor %}

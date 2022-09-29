@@ -16,7 +16,7 @@ class Customer {
     this.notes = notes;
   }
 
-  /** find all customers. */
+  /** find all customers or find customers by search string. */
 
   static async all(searchTerm) {
     let results;
@@ -37,10 +37,10 @@ class Customer {
     } else {
       results = await db.query(
         `SELECT id,
-                    first_name AS "firstName",
-                    last_name  AS "lastName",
-                    phone,
-                    notes
+                first_name AS "firstName",
+                last_name  AS "lastName",
+                phone,
+                notes
              FROM customers
              ORDER BY last_name, first_name`,
       );
@@ -145,9 +145,11 @@ class Customer {
     }
   }
 
-  fullName() {
+  /** property to get full name. */
+  get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
+
 }
 
 module.exports = Customer;
